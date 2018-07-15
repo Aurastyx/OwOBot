@@ -62,9 +62,17 @@ class TestClient(discord.Client):
         
         if DiscMessage.startswith('owo communism'):
             global OwOCffmpeg
-            OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel) 
-            OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('test.mp3')
-            OwOCffmpeg.start()
+            global OwOVoiceClient
+            
+            if (OwOVoiceClient == 0):          
+                OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel)
+                OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
+                OwOCffmpeg.start()
+            else:
+                await OwOVoiceClient.move_to(message.author.voice.voice_channel)
+                OwOCffmpeg.stop()
+                OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
+                OwOCffmpeg.start()
             print('starting voice')
 
         if DiscMessage.startswith('owo stop'):
@@ -72,8 +80,14 @@ class TestClient(discord.Client):
             OwOCffmpeg.stop()
             print ('stopping voice')
             
-
-OwOCffmpeg = 0 #global's are bad, I know
+        if DiscMessage.startswith('owo yoink'):
+            channelToYoinkFrom = message.author.voice.voice_channel.voice_members
+            playerToYoink = channelToYoinkFrom [ randint(0,(len(channelToYoinkFrom)-1)) ]
+            print (playerToYoink)
+            await client.move_member(playerToYoink, message.server.afk_channel)
+            
+OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly
+OwOVoiceClient = 0 #They cause so many horrible errors, but i just pretend their not there
 client = TestClient()
 discord.opus.load_opus('opus')
 client.run('MzgzMzg4NjE4NjE1NDIyOTc2.DhwRAQ.GJfmZKcxFc05R5k2y9PCpSHJPys')
