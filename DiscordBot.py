@@ -93,14 +93,14 @@ class TestClient(discord.Client):
             helpFile.close
             
         if DiscMessage.startswith('owo pet'):
-            petCountFile = open('Pet.txt', 'r')
+            petCountFile = open('TextFiles/Pet.txt', 'r')
             petCount = petCountFile.read()
             petCountFile.close
             petCount = int(petCount)
             petCount = petCount + 1
             petCount = str(petCount)
             await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
-            petCountFile = open('Pet.txt', 'w')
+            petCountFile = open('TextFiles/Pet.txt', 'w')
             petCountFile.write(petCount)
             petCountFile.close()
 
