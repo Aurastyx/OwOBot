@@ -2,3 +2,4 @@ __pycache__
 /Audio
 opus.dll
 ffmpeg.dll
+/TextFiles/Token.txt
