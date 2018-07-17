@@ -85,6 +85,25 @@ class TestClient(discord.Client):
             playerToYoink = channelToYoinkFrom [ randint(0,(len(channelToYoinkFrom)-1)) ]
             print (playerToYoink)
             await client.move_member(playerToYoink, message.server.afk_channel)
+
+        if DiscMessage.startswith('owo help'):
+            helpFile = open('Help.txt','r') 
+            helpLine = helpFile.read()
+            await client.send_message(discord.Object(id=message.channel.id), helpLine)
+            helpFile.close
+            
+        if DiscMessage.startswith('owo pet'):
+            petCountFile = open('Pet.txt', 'r')
+            petCount = petCountFile.read()
+            petCountFile.close
+            petCount = int(petCount)
+            petCount = petCount + 1
+            petCount = str(petCount)
+            await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
+            petCountFile = open('Pet.txt', 'w')
+            petCountFile.write(petCount)
+            petCountFile.close()
+
             
 OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly
 OwOVoiceClient = 0 #They cause so many horrible errors, but i just pretend their not there
