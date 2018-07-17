@@ -111,4 +111,4 @@ OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working p
 OwOVoiceClient = 0 #They cause so many horrible errors, but i just pretend their not there
 client = TestClient()
 discord.opus.load_opus('opus')
-client.run('MzgzMzg4NjE4NjE1NDIyOTc2.DhwRAQ.GJfmZKcxFc05R5k2y9PCpSHJPys')
+client.run('Insert token here')
