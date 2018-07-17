@@ -1,9 +1,0 @@
-```The following commands are currently available
-OwO Coin, Flips a Coin
-OwO Yiff, OwO OwO OwO OwO OwO OwO OwO OwO OwO OwO 
-OwO Calc, Mostly used for debugging, dont touch
-OwO Lookup, Looks up a runescape account, currently only works for RS3
-OwO Wiki, Looks up a relevant RS3 wiki page
-OwO Communism, Brings equality to the proletariat, and justice to the bourgeoisie
-OwO Stop, restores the discord server to capitalist oppression
-OwO Yoink, Yoinks a random user from your current voice channel```

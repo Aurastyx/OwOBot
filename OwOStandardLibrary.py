@@ -30,7 +30,7 @@ def runescapeLookup (user, skill):
 
 def rsWikiLookup (lookup):
     constUrl = 'http://runescape.wikia.com/wiki/Special:Search?query='
-    wikiurl = constUrl + 'prayer'
+    wikiurl = constUrl + lookup
     print (wikiurl)
     rawHTMLForWikiLookup = requests.get(wikiurl)
     parsedWikiHTML = BeautifulSoup(rawHTMLForWikiLookup.text, 'html.parser')

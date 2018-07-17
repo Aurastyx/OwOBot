@@ -87,7 +87,7 @@ class TestClient(discord.Client):
             await client.move_member(playerToYoink, message.server.afk_channel)
 
         if DiscMessage.startswith('owo help'):
-            helpFile = open('Help.txt','r') 
+            helpFile = open('TextFiles/Help.txt','r') 
             helpLine = helpFile.read()
             await client.send_message(discord.Object(id=message.channel.id), helpLine)
             helpFile.close
