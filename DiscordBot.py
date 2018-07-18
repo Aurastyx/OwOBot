@@ -63,18 +63,31 @@ class TestClient(discord.Client):
             print ('looking up article' + WikiLookupTag + 'in server : ' + message.server.name)
         
         if DiscMessage.startswith('owo communism'):     # Nasty hacky audio player, currently just playes the soviet national anthem, 
-            global OwOCffmpeg                            #voice is handled by a voice object, the globals are "needed" so that other functions can work with the same voice object
-                                                         #there's definatly a nicer way to handle this, i'll get around to it eventualy
-            if (OwOVoiceClient == 0):          
-                OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel)
-                OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
-                OwOCffmpeg.start()
+            global OwOCffmpeg                           #voice is handled by a voice object, the globals are "needed" so that other functions can work with the same voice object
+            global OwOVoiceClient                       #there's definatly a nicer way to handle this, i'll get around to it eventualy
+            if (OwOVoiceClient == 0):
+                try:          
+                    OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel)
+                except discord.errors.InvalidArgument:
+                    await client.send_message(discord.Object(id=message.channel.id), 'Error : User not in voice channel')
+
+                else:
+                    OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
+                    OwOCffmpeg.start()
+                    print('Starting voice')
+
             else:
-                await OwOVoiceClient.move_to(message.author.voice.voice_channel)
-                OwOCffmpeg.stop()
-                OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
-                OwOCffmpeg.start()
-            print('Starting voice')
+                try:
+                    await OwOVoiceClient.move_to(message.author.voice.voice_channel)
+                except discord.errors.InvalidArgument:
+                    await client.send_message(discord.Object(id=message.channel.id), 'Error : User not in voice channel')
+                else:
+                    OwOCffmpeg.stop()
+                    OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
+                    OwOCffmpeg.start()
+                    print('Starting voice')
+                
+            
 
         if DiscMessage.startswith('owo stop'):          # Stops the audio player, uses a nasty global for this
             OwOCffmpeg.stop()
@@ -104,6 +117,7 @@ class TestClient(discord.Client):
 
             
 OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly, They cause so many horrible errors, but i just pretend their not there
+OwOVoiceClient = 0
 discordTokenFile = open('TextFiles/Token.txt', 'r')
 discordToken = discordTokenFile.read()
 
