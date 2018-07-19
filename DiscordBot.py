@@ -2,6 +2,7 @@ import discord                                  # Needed by discord.py
 import asyncio                                  # Needed by discord.py
 import OwOStandardLibrary                       # Some of the nastier functions got moved here to keep the main file cleaner
 from random import randint                      # Needed by the bot, used to play games of chance
+from pathlib import Path                        # Used for error checking
 from discord.voice_client import VoiceClient    # Needed by the bot, used only for audio playback
 
 # If your reading this code, im so sorry, this isnt supposed to publicly available, im just too cheap to buy git premium for a private directory
@@ -63,24 +64,33 @@ class TestClient(discord.Client):
             print ('looking up article' + WikiLookupTag + 'in server : ' + message.server.name)
         
         if DiscMessage.startswith('owo communism'):     # Nasty hacky audio player, currently just playes the soviet national anthem, 
-            global OwOCffmpeg       #voice is handled by a voice object, however since this is being created at runtime the editor gets really upset about it
-            global OwOVoiceClient   #it's all down to these globals, they are needed so that other functions can work with the same voice object
-            
-            if (OwOVoiceClient == 0):          
-                OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel)
-                OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
-                OwOCffmpeg.start()
-            else:
-                await OwOVoiceClient.move_to(message.author.voice.voice_channel)
-                OwOCffmpeg.stop()
-                OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
-                OwOCffmpeg.start()
-            print('starting voice')
+            global OwOCffmpeg                           #voice is handled by a voice object, the globals are "needed" so that other functions can work with the same voice object
+            global OwOVoiceClient                       #there's definatly a nicer way to handle this, i'll get around to it eventualy
+            if (OwOVoiceClient == 0):
+                try:          
+                    OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel)
+                except discord.errors.InvalidArgument:
+                    await client.send_message(discord.Object(id=message.channel.id), 'Error : User not in voice channel')
 
+                else:
+                    OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
+                    OwOCffmpeg.start()
+                    print('Starting voice')
+
+            else:
+                try:
+                    await OwOVoiceClient.move_to(message.author.voice.voice_channel)
+                except discord.errors.InvalidArgument:
+                    await client.send_message(discord.Object(id=message.channel.id), 'Error : User not in voice channel')
+                else:
+                    OwOCffmpeg.stop()
+                    OwOCffmpeg = OwOVoiceClient.create_ffmpeg_player('Audio/Communism/Communism.mp3')
+                    OwOCffmpeg.start()
+                    print('Starting voice')
+                
         if DiscMessage.startswith('owo stop'):          # Stops the audio player, uses a nasty global for this
-            global OwOCffmpeg
             OwOCffmpeg.stop()
-            print ('stopping voice')
+            print ('Stopping voice')
             
         if DiscMessage.startswith('owo yoink'):         # Grabs a random player from the message author's channel and throws him into the afk channel
             channelToYoinkFrom = message.author.voice.voice_channel.voice_members
@@ -94,21 +104,27 @@ class TestClient(discord.Client):
             await client.send_message(discord.Object(id=message.channel.id), helpLine)
             helpFile.close
             
-        if DiscMessage.startswith('owo pet'):           # This is more proof of concept rather than something to activly use
-            petCountFile = open('TextFiles/Pet.txt', 'r')   #it works, but you need to reset the pet count back to zero
-            petCount = petCountFile.read()                  #it's also ugly as all hell, but i just call it code consistancy
-            petCountFile.close
-            petCount = int(petCount)
-            petCount = petCount + 1
-            petCount = str(petCount)
-            await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
-            petCountFile = open('TextFiles/Pet.txt', 'w')
-            petCountFile.write(petCount)
-            petCountFile.close()
-
+        if DiscMessage.startswith('owo pet'):               # This is more proof of concept rather than something to activly use
+            pathToPet = Path('TextFiles/Pet.txt')
+            if pathToPet.is_file():
+                petCountFile = open('TextFiles/Pet.txt', 'r')   
+                petCount = petCountFile.read()                  
+                petCountFile.close
+                petCount = str( int(petCount) +  1 )
+                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
+                petCountFile = open('TextFiles/Pet.txt', 'w')
+                petCountFile.write(petCount)
+                petCountFile.close()
+            else:
+                petCountFile = open('TextFiles/Pet.txt', 'w+')
+                petCountFile.write('1')
+                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + '1' + ' time <:Hypers:443914491294515200>' )
             
-OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly
-OwOVoiceClient = 0 #They cause so many horrible errors, but i just pretend their not there
+OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly, They cause so many horrible errors, but i just pretend their not there
+OwOVoiceClient = 0
+discordTokenFile = open('TextFiles/Token.txt', 'r')
+discordToken = discordTokenFile.read()
+
 client = TestClient()
 discord.opus.load_opus('opus')
-client.run('Insert token here')
+client.run(discordToken)
