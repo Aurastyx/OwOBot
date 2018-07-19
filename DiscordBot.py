@@ -2,6 +2,7 @@ import discord                                  # Needed by discord.py
 import asyncio                                  # Needed by discord.py
 import OwOStandardLibrary                       # Some of the nastier functions got moved here to keep the main file cleaner
 from random import randint                      # Needed by the bot, used to play games of chance
+from pathlib import Path                        # Used for error checking
 from discord.voice_client import VoiceClient    # Needed by the bot, used only for audio playback
 
 # If your reading this code, im so sorry, this isnt supposed to publicly available, im just too cheap to buy git premium for a private directory
@@ -87,8 +88,6 @@ class TestClient(discord.Client):
                     OwOCffmpeg.start()
                     print('Starting voice')
                 
-            
-
         if DiscMessage.startswith('owo stop'):          # Stops the audio player, uses a nasty global for this
             OwOCffmpeg.stop()
             print ('Stopping voice')
@@ -105,16 +104,21 @@ class TestClient(discord.Client):
             await client.send_message(discord.Object(id=message.channel.id), helpLine)
             helpFile.close
             
-        if DiscMessage.startswith('owo pet'):           # This is more proof of concept rather than something to activly use
-            petCountFile = open('TextFiles/Pet.txt', 'r')   #it works, but you need to reset the pet count back to zero
-            petCount = petCountFile.read()                  #it's also ugly as all hell, but i just call it code consistancy
-            petCountFile.close
-            petCount = str( int(petCount) +  1 )
-            await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
-            petCountFile = open('TextFiles/Pet.txt', 'w')
-            petCountFile.write(petCount)
-            petCountFile.close()
-
+        if DiscMessage.startswith('owo pet'):               # This is more proof of concept rather than something to activly use
+            pathToPet = Path('TextFiles/Pet.txt')
+            if pathToPet.is_file():
+                petCountFile = open('TextFiles/Pet.txt', 'r')   
+                petCount = petCountFile.read()                  
+                petCountFile.close
+                petCount = str( int(petCount) +  1 )
+                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
+                petCountFile = open('TextFiles/Pet.txt', 'w')
+                petCountFile.write(petCount)
+                petCountFile.close()
+            else:
+                petCountFile = open('TextFiles/Pet.txt', 'w+')
+                petCountFile.write('1')
+                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + '1' + ' time <:Hypers:443914491294515200>' )
             
 OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly, They cause so many horrible errors, but i just pretend their not there
 OwOVoiceClient = 0
