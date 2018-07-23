@@ -1,3 +1,4 @@
+import json                                     # Used for storing individual user data
 import discord                                  # Needed by discord.py
 import asyncio                                  # Needed by discord.py
 import OwOStandardLibrary                       # Some of the nastier functions got moved here to keep the main file cleaner
@@ -12,6 +13,26 @@ from discord.voice_client import VoiceClient    # Needed by the bot, used only f
 
 class TestClient(discord.Client):           
     async def on_ready(self):                           # This SHOULD be used to set up the bot, right now it just alerts you when the bot has finished booting
+        pathToPet = Path('TextFiles/Pet.txt')
+        if pathToPet.is_file():
+            pass 
+        else:
+            petCountFile = open('TextFiles/Pet.txt', 'w+')
+            petCountFile.write('0')
+            petCountFile.close
+            print ('works')
+
+        pathToUserPetCount = Path ('TextFiles/PetCounter.json')
+        if pathToUserPetCount.is_file():
+            pass 
+        else:
+            pathToUserPetCount = open('TextFiles/PetCounter.json', 'w+')
+            userPetCount = {"!Total": 0}
+            jsonUserPetCount = json.dumps(userPetCount)
+            pathToUserPetCount.write(jsonUserPetCount)
+            pathToUserPetCount.close
+           
+
         print('Logged in as user : ' + self.user.name)  
         print('with ID : ' + self.user.id)
         print('--------------------------------')
@@ -64,8 +85,8 @@ class TestClient(discord.Client):
             print ('looking up article' + WikiLookupTag + 'in server : ' + message.server.name)
         
         if DiscMessage.startswith('owo communism'):     # Nasty hacky audio player, currently just playes the soviet national anthem, 
-            global OwOCffmpeg                           #voice is handled by a voice object, the globals are "needed" so that other functions can work with the same voice object
-            global OwOVoiceClient                       #there's definatly a nicer way to handle this, i'll get around to it eventualy
+            global OwOCffmpeg                           # Voice is handled by a voice object, the globals are "needed" so that other functions can work with the same voice object
+            global OwOVoiceClient                       # There's definatly a nicer way to handle this, i'll get around to it eventualy
             if (OwOVoiceClient == 0):
                 try:          
                     OwOVoiceClient = await client.join_voice_channel(message.author.voice.voice_channel)
@@ -104,21 +125,39 @@ class TestClient(discord.Client):
             await client.send_message(discord.Object(id=message.channel.id), helpLine)
             helpFile.close
             
-        if DiscMessage.startswith('owo pet'):               # This is more proof of concept rather than something to activly use
-            pathToPet = Path('TextFiles/Pet.txt')
-            if pathToPet.is_file():
-                petCountFile = open('TextFiles/Pet.txt', 'r')   
-                petCount = petCountFile.read()                  
-                petCountFile.close
-                petCount = str( int(petCount) +  1 )
-                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
-                petCountFile = open('TextFiles/Pet.txt', 'w')
-                petCountFile.write(petCount)
-                petCountFile.close()
+        #if DiscMessage.startswith('owo pet'):               # This is more proof of concept rather than something to activly use
+        #        petCountFile = open('TextFiles/Pet.txt', 'r')   
+        #        petCount = petCountFile.read()                  
+        #        petCountFile.close
+        #        petCount = str( int(petCount) +  1 )
+        #        await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + petCount + ' times <:Hypers:443914491294515200>' )
+        #        petCountFile = open('TextFiles/Pet.txt', 'w')
+        #        petCountFile.write(petCount)
+        #        petCountFile.close()
+      
+        if DiscMessage.startswith('owo pet'):
+            petUser = message.author.name
+            petCountPerUser = open('TextFiles/PetCounter.json', 'r')
+            bankOfPets = json.load(petCountPerUser)
+            petCountPerUser.close
+
+            if petUser in bankOfPets:
+                pathToUserPetCount = open('TextFiles/PetCounter.json', 'w+')
+                bankOfPets[petUser] = (bankOfPets[petUser] + 1)
+                bankOfPets['!Total'] = (bankOfPets['!Total'] + 1)
+                json.dump(bankOfPets , pathToUserPetCount)
+                pathToUserPetCount.close
+                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + str(bankOfPets['!Total']) + ' times <:Hypers:443914491294515200> \n <:Hypers:443914491294515200> You have ' + str(bankOfPets[petUser]) + ' pets in the bank of OwO <:Hypers:443914491294515200>' )
+
             else:
-                petCountFile = open('TextFiles/Pet.txt', 'w+')
-                petCountFile.write('1')
-                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + '1' + ' time <:Hypers:443914491294515200>' )
+                pathToUserPetCount = open('TextFiles/PetCounter.json', 'w+')
+                bankOfPets[petUser] = 1
+                print (bankOfPets)
+                json.dump(bankOfPets, pathToUserPetCount)
+                pathToUserPetCount.close
+                await client.send_message(discord.Object(id=message.channel.id), '<:Hypers:443914491294515200> OwO bot has been petted ' + str(bankOfPets['!Total']) + ' times <:Hypers:443914491294515200> \n <:Hypers:443914491294515200> You have ' + str(bankOfPets[petUser]) + ' pets in the bank of OwO <:Hypers:443914491294515200>' )
+
+            
             
 OwOCffmpeg = 0 #These global's are "needed" to get the voice functions working properly, They cause so many horrible errors, but i just pretend their not there
 OwOVoiceClient = 0

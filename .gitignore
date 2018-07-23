@@ -4,4 +4,4 @@ opus.dll
 ffmpeg.dll
 TextFiles/Token.txt
 TextFiles/Pet.txt
-
+TextFiles/PetCounter.json
